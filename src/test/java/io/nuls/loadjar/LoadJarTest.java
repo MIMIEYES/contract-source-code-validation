@@ -52,7 +52,8 @@ public class LoadJarTest {
     public void test() {
         InputStream in = null;
         try {
-            in = new FileInputStream(LoadJarTest.class.getResource("/contract.jar").getFile());
+            //in = new FileInputStream(LoadJarTest.class.getResource("/crowdsale_7_80.jar").getFile());
+            in = new FileInputStream(LoadJarTest.class.getResource("/crowdsale_local.jar").getFile());
             byte[] contractCode = IOUtils.toByteArray(in);
             Map<String, ClassCode> codeMap = ClassCodeLoader.loadJarCache(contractCode);
             //for(String key : codeMap.keySet()) {
@@ -61,7 +62,7 @@ public class LoadJarTest {
             // io/nuls/vote/contract/event/AddItemEvent
             // io/nuls/vote/contract/func/BaseVote
             //ClassCode addItemEvent = codeMap.get("io/nuls/vote/contract/event/AddItemEvent");
-            ClassCode addItemEvent = codeMap.get("io/nuls/vote/contract/func/BaseVote");
+            /*ClassCode addItemEvent = codeMap.get("io/nuls/vote/contract/func/BaseVote");
             List<MethodCode> methods = addItemEvent.methods;
             for (MethodCode methodCode : methods) {
                 System.out.println("Method Name: " + methodCode.fullName);
@@ -88,7 +89,7 @@ public class LoadJarTest {
                 System.out.println("////////////////////////////////////////////////////////////////////////");
                 System.out.println("////////////////////////////////////////////////////////////////////////");
                 System.out.println("////////////////////////////////////////////////////////////////////////");
-            }
+            }*/
 
 
         } catch (Exception e) {

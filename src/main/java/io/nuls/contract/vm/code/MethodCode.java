@@ -260,10 +260,11 @@ public class MethodCode {
         final List<VariableType> variableTypes = VariableType.parseAll(desc);
         final int last = variableTypes.size() - 1;
         returnVariableType = variableTypes.get(last);
-        argsVariableType = variableTypes.subList(0, last);
 
+        argsVariableType = variableTypes.subList(0, last);
         final List<LocalVariableNode> localVariableNodes = ListUtils.emptyIfNull(methodNode.localVariables);
         localVariables = new ArrayList<>(arrayListInitialCapacity(localVariableNodes.size()));
+
         for (LocalVariableNode localVariableNode : localVariableNodes) {
             localVariables.add(new LocalVariableCode(localVariableNode));
         }
@@ -276,6 +277,7 @@ public class MethodCode {
         if (!isStatic) {
             index += 1;
         }
+        int start = 0;
         for (int i = 0; i < argsVariableType.size(); i++) {
             final VariableType variableType = argsVariableType.get(i);
             if (i > 0) {
@@ -288,6 +290,28 @@ public class MethodCode {
 
             LocalVariableCode localVariableCode = getLocalVariableCode(index);
             index++;
+
+            // 成员内部类的构造函数中过滤掉`this`参数
+            if(isConstructor) {
+                do {
+                    List<InnerClassNode> innerClasses = classCode.innerClasses;
+                    if(localVariables == null || localVariables.isEmpty()) break;
+                    if(variableTypes == null || variableTypes.isEmpty()) break;
+                    if(innerClasses == null || innerClasses.isEmpty()) break;
+                    InnerClassNode innerClassNode = innerClasses.get(0);
+                    String innerName = innerClassNode.innerName;
+                    String outerName = innerClassNode.outerName;
+                    String thisInnerName = classCode.name.substring(classCode.name.lastIndexOf("$") + 1);
+                    String firstVariableType = variableTypes.get(0).getType();
+                    String firstLocalVariableName = this.localVariables.get(0).name;
+                    if(innerName.equals(thisInnerName)
+                            && outerName.equals(firstVariableType)
+                            && "this".equals(firstLocalVariableName)) {
+                        start = 1;
+                    }
+                }while (false);
+            }
+
             if (localVariableCode != null) {
                 name = localVariableCode.name;
                 if (isConstructor && classCode.isSyntheticField(name)) {
@@ -298,11 +322,28 @@ public class MethodCode {
 //                }
             }
 
+            if(start == 1) {
+                continue;
+            }
+
             final String normalDesc = ProgramDescriptors.getNormalDesc(variableType);
             final String stringArg = normalDesc + " " + name;
             stringArgs.add(stringArg);
             final ProgramMethodArg arg = new ProgramMethodArg(normalDesc, name, hasRequiredAnnotation(i));
             args.add(arg);
+        }
+
+        // 成员内部类的构造函数 localVariables 过滤掉`this`参数
+        if(start == 1) {
+            localVariables.remove(0);
+        }
+
+        // 成员内部类的构造函数 localVariables 过滤掉`this$0`参数
+        if(localVariables != null && !localVariables.isEmpty()) {
+            LocalVariableCode localVariableCode = localVariables.get(0);
+            if (isConstructor && classCode.isSyntheticField(localVariableCode.name)) {
+                localVariables.remove(0);
+            }
         }
 
         StringBuilder sb = new StringBuilder();

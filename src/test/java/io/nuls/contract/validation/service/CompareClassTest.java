@@ -23,13 +23,25 @@ import static org.junit.Assert.*;
 public class CompareClassTest {
 
     @Test
-    public void test() {
+    public void test_nrc20() {
+        testJar("/nrc20_local.jar", "/nrc20_7_80.jar");
+    }
+    @Test
+    public void test_vote() {
+        testJar("/vote_local.jar", "/vote_7_80.jar");
+    }
+    @Test
+    public void test_crowdsale() {
+        testJar("/crowdsale_local.jar", "/crowdsale_7_80.jar");
+    }
+
+    public void testJar(String orginJar, String validateJar) {
         InputStream in = null;
         InputStream in1 = null;
         try {
-            in = new FileInputStream(LoadJarTest.class.getResource("/contract_local.jar").getFile());
+            in = new FileInputStream(LoadJarTest.class.getResource(orginJar).getFile());
             byte[] contractCode = IOUtils.toByteArray(in);
-            in1 = new FileInputStream(LoadJarTest.class.getResource("/contract_7_80.jar").getFile());
+            in1 = new FileInputStream(LoadJarTest.class.getResource(validateJar).getFile());
             byte[] validateContractCode = IOUtils.toByteArray(in1);
 
             Assert.assertTrue(CompareJar.compareJarBytes(contractCode, validateContractCode));
