@@ -53,9 +53,10 @@ public class LoadJarTest {
         InputStream in = null;
         try {
             //in = new FileInputStream(LoadJarTest.class.getResource("/crowdsale_7_80.jar").getFile());
-            in = new FileInputStream(LoadJarTest.class.getResource("/crowdsale_local.jar").getFile());
+            in = new FileInputStream(LoadJarTest.class.getResource("/listTest.jar").getFile());
             byte[] contractCode = IOUtils.toByteArray(in);
             Map<String, ClassCode> codeMap = ClassCodeLoader.loadJarCache(contractCode);
+            System.out.println();
             //for(String key : codeMap.keySet()) {
             //    System.out.println("key: " + key);
             //}
